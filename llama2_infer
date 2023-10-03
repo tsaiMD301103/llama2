@@ -1,0 +1,58 @@
+### reference https://huggingface.co/blog/llama2  #######
+
+!pip install git+https://github.com/huggingface/transformers
+!pip install sentencepiece
+
+from huggingface_hub import login
+access_token_read = "xxxxxxx"  #your token on hugging face
+login(token = access_token_read)
+
+###while logging successful, you will see the bellowing#####
+###Token will not been saved to git credential helper. Pass `add_to_git_credential=True` if you want to set the git credential as well.
+###Token is valid (permission: read).
+###Your token has been saved to C:\Users\jason\.cache\huggingface\token
+###Login successful
+
+!pip install accelerate==0.20.3
+
+import transformers
+import torch
+
+from transformers import AutoTokenizer
+import transformers
+import torch
+
+model = "meta-llama/Llama-2-13b-chat-hf"
+
+
+tokenizer = AutoTokenizer.from_pretrained(model)
+pipeline = transformers.pipeline(
+    "text-generation",
+    model=model,
+    torch_dtype=torch.float16,
+    device_map="auto",
+)
+
+sequences = pipeline(
+    'I liked "Breaking Bad" and "Band of Brothers". Do you have any recommendations of other shows I might like?\n',
+    do_sample=True,
+    top_k=10,
+    num_return_sequences=1,
+    eos_token_id=tokenizer.eos_token_id,
+    max_length=200,
+)
+for seq in sequences:
+    print(f"Result: {seq['generated_text']}")
+
+
+
+###### while infer successfully, you will see the bellowing result ##########
+####Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+###Result: I liked "Breaking Bad" and "Band of Brothers". Do you have any recommendations of other shows I might like?
+
+####I do! Based on your interest in drama and historical fiction, I would recommend the following shows:
+
+####1. "The Wire": This critically acclaimed series explores the drug trade in Baltimore from multiple perspectives, delving into the complexities of the criminal justice system, police corruption, and the struggles of the working class.
+####2. " Narcos": This series tells the true story of the rise and fall of Colombian drug kingpin Pablo Escobar and the DEA agents tasked with bringing him down.
+####3. "The Crown": This historical drama follows the reign of Queen Elizabeth II, exploring the internal struggles of the royal family and the political turmoil of the post-war era.
+####4. "This Is England": Set in the early 1980s
